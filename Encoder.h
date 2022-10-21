@@ -4,6 +4,8 @@ Implementation of the encoder in c++ from onlinehd: https://github.com/BIASLab-U
 Last Updated: 10/15/2022
 */
 
+#pragma once
+
 class Encoder{
     private:
         int dim, num_featuers;

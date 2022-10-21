@@ -4,9 +4,9 @@ Implementation of the encoder in c++ from onlinehd: https://github.com/BIASLab-U
 Last Updated: 10/15/2022
 */
 
-#include "Encoder.h";
+#include "Encoder.h"
 
-Encoder::Encoder(int features, int dim = 4000){
+Encoder::Encoder(int features, int dim){
     this->dim = dim;
     this->num_featuers = features;
 }
