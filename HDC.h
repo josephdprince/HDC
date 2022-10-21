@@ -1,10 +1,9 @@
+#pragma once
+
 #include <cmath>
 
 #include <ATen/ATen.h>
-
-/* This is a place holder. This struct definition should be removed after the
- * rest of the encoder code exits */
-struct Encoder {};
+#include "Encoder.h"
 
 struct HDC {
   int classes;
