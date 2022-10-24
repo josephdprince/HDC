@@ -3,30 +3,33 @@
 #include <cmath>
 
 #include <ATen/ATen.h>
+#include <torch/torch.h>
 #include "Encoder.h"
 
 struct HDC {
-  int classes;
-  int dim;
-  Encoder encoder;
+  /* Using default options
+   * dtype -> kFloat32
+   * layout -> kStrided
+   * device -> kCPU
+   * requires_grad -> false
+   */
+  c10::TensorOptions options = torch::TensorOptions();
 
-  void init(int classes, int features, int dim = 4000);
+  /* Update return type for functions */
+  torch::Tensor predict(torch::Tensor x, bool encoded = false);
 
-  /* Should not be void, update later */
-  void call(at::Tensor x, bool encoded = false);
+  torch::Tensor probabilities(torch::Tensor x, bool encoded = false);
 
-  void predict(at::Tensor x, bool encoded = false);
+  torch::Tensor scores(torch::Tensor& x, torch::Tensor& model, bool encoded = false);
 
-  void probabilities(at::Tensor x, bool encoded = false);
+  torch::Tensor cos_cdist(torch::Tensor& x1, torch::Tensor& x2, float eps = 1e-8);
 
-  void scores(at::Tensor x, bool encoded = false);
-
-  void encode(at::Tensor x);
+  torch::Tensor encode(torch::Tensor x);
 
   /* This function also has 2 additional paramaters with the Union type imported
    * from typing. I believe this just does a bitwise or, but this will need to
    * be fixed in the future */
-  void fit(at::Tensor x, at::Tensor y, bool encoded = false, float lr = 0.035,
+  void fit(torch::Tensor x, torch::Tensor y, bool encoded = false, float lr = 0.035,
            int epochs = 120, bool one_pass_fit = true);
 
   /* This uses *args, Find out what should replace this for the c version */

@@ -1,11 +1,19 @@
 #include <iostream>
 
-#include "HDC.h"
 #include "Encoder.h"
+#include "HDC.h"
 
-int main(){
-    
-    std::cout << "Test" << std::endl;
+int main() {
 
-    return 0;
+  /* Init */
+  HDC hdc;
+
+  // Variables will need to be set to values besides default at some point
+  int classes = 5;
+  int dim = 10000;
+  int features = 100;
+  Encoder encoder(features, dim);
+  torch::Tensor model = torch::zeros({classes, dim}, hdc.options);
+
+  return 0;
 }
