@@ -1,41 +1,38 @@
 #pragma once
 
-#include <cmath>
+/* Global variables */
+#define DIMENSIONS 10000
+#define FEATURES 784
+#define CLASSES 10
 
-#include <ATen/ATen.h>
-#include <torch/torch.h>
-#include "Encoder.h"
+typedef float FeatType;
 
 struct HDC {
-  /* Using default options
-   * dtype -> kFloat32
-   * layout -> kStrided
-   * device -> kCPU
-   * requires_grad -> false
-   */
-  c10::TensorOptions options = torch::TensorOptions();
+  int dimensions;
+  int features;
+  int classes;
 
-  /* Update return type for functions */
-  torch::Tensor predict(torch::Tensor x, bool encoded = false);
-
-  torch::Tensor probabilities(torch::Tensor x, bool encoded = false);
-
-  torch::Tensor scores(torch::Tensor& x, torch::Tensor& model, bool encoded = false);
-
-  torch::Tensor cos_cdist(torch::Tensor& x1, torch::Tensor& x2, float eps = 1e-8);
-
-  torch::Tensor encode(torch::Tensor x);
-
-  /* This function also has 2 additional paramaters with the Union type imported
-   * from typing. I believe this just does a bitwise or, but this will need to
-   * be fixed in the future */
-  void fit(torch::Tensor x, torch::Tensor y, bool encoded = false, float lr = 0.035,
-           int epochs = 120, bool one_pass_fit = true);
-
-  /* This uses *args, Find out what should replace this for the c version */
-  void to();
-
-  /* Not yet able to determine parameter types */
-  void _one_pass_fit();
-  void _iterative_fit();
+  FeatType basis[FEATURES][DIMENSIONS];
+  FeatType classList[CLASSES][DIMENSIONS];
 };
+
+/* Note: HLS requires that pointers are not used, and C does not allow an array
+ * return value. Therefore, a struct hdc instance must be passed as a value to
+ * below functions with a struct HDC return value. We need this return value
+ * because the functions will make a copy of HDC without saving any updates.
+ * Updating the copy of HDC in main will fix this issue but will incur a need
+ * for more space. In the future, we should look at a workaround to this space
+ * issue. */
+
+/* Populates each column in the basis matrix with random values from [-1,1] */
+struct HDC populateBasis(struct HDC hdc);
+
+/* Encodes a sample vector by multiplying it with the basis matrix */
+struct HDC encode(struct HDC hdc, FeatType sample[]);
+
+/* Encodes a sample vector and adds it to the classList */
+struct HDC train(struct HDC hdc, FeatType sample[]);
+
+/* Encodes a sample and compares it to the closest class in classList. Return is
+ * a numerical value of the classification */
+int similarity(struct HDC hdc, FeatType sample[]);
