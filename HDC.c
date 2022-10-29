@@ -5,6 +5,20 @@
 #include <stdlib.h>
 #include <time.h>
 
+void train(struct classList *l, int numClass, struct ENvector *sample) {
+  // Is a float large enough?
+  float magnitude = 0;
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    l->classes[numClass][i] += sample->vector[i];
+    magnitude += powf(l->classes[numClass][i], 2);
+  }
+  magnitude = sqrtf(magnitude);
+
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    l->classes[numClass][i] /= magnitude;
+  }
+  
+}
 
 float float_rand(float min, float max) {
   // generate random float number
