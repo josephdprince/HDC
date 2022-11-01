@@ -11,7 +11,7 @@ float float_rand(float min, float max) {
   return min + scale * (max - min);              /* [min, max] */
 }
 
-struct HDvector* rng_gen(struct HDvector* target) { //TODO: NEED TO FIX SEED NOT CHANGING
+struct HDvector* rng_gen(struct HDvector* target) { 
   // fill the given vector with randeom float # from -1 to 1
   static char initial_setup = 1;
   if (initial_setup == 1){
@@ -50,6 +50,7 @@ void print_partial_vector(struct HDvector *target) {
 }
 
 void print_vector(struct HDvector *target, char includeInfo) {
+  //print the full vector if the size is <= 4, otherwise just print partial
   if (includeInfo){
     printf("Printing a %i-wide vector w/ a magnitude of %f :\n", FEATURES,target->magnitude);
   }
@@ -75,6 +76,7 @@ void print_basis(struct BasisVectors* target){
     if(i < top_bot_num || i >= DIMENSIONS-top_bot_num){
       printf("\t");
       printf("%i: ", i);
+      
       //print_full_vector(&target->b_vectors[i]);
       print_vector(&(target->b_vectors[i]), FALSE);
       if (i != DIMENSIONS - 1) {

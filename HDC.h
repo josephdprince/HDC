@@ -11,8 +11,17 @@
 typedef float FeatType;
 
 struct HDvector {
-  float magnitude;
+  FeatType magnitude;
   FeatType vector[FEATURES];
+};
+
+struct ENvector {
+  FeatType magnitude;
+  FeatType vector[DIMENSIONS];
+};
+
+struct classList {
+  ENvector classes[CLASSES];
 };
 
 struct BasisVectors{
