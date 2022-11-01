@@ -8,25 +8,36 @@
 #define FALSE 0
 #define TRUE 1
 
-typedef float FeatType;
+typedef float FeatType element;
+
+/* Different abstract structs====================================== */
 
 struct HDvector {
+  //To represent a single fecture vector of the basis vector
   FeatType magnitude;
   FeatType vector[FEATURES];
 };
 
 struct ENvector {
+  /*
+  To represent an encoded vector after the dot product of the sample 
+  vector with the basis vectors
+  */
   FeatType magnitude;
   FeatType vector[DIMENSIONS];
 };
 
 struct classList {
+  //The classes we try to classify 
   ENvector classes[CLASSES];
 };
 
 struct BasisVectors{
+  //Representation of a basis vector for encoding 
   struct HDvector b_vectors[DIMENSIONS];
 };
+
+/* Main important fucntion for HDC============================================= */
 
 /* Populates each column in the basis matrix with random values from [-1,1] */
 void populateBasis(struct BasisVectors* target);
@@ -41,12 +52,19 @@ void train(struct HDvector *hdc, FeatType sample[]);
  * a numerical value of the classification */
 int similarity(struct HDvector *hdc, FeatType sample[]);
 
-/* Helper functions for HDvector */
+/* Helper functions for HDvector=============================================== */
+
+/* Generate random float number [min, max] */
 float float_rand(float min, float max);
+
+/* Generate Vector of size FEATURES with random FeatType element */
 struct HDvector *rng_gen(struct HDvector *target);
+
 void print_full_vector(struct HDvector *target);
 void print_partial_vector(struct HDvector *target);
+
+/* Decide to print partial or full vector */
 void print_vector(struct HDvector *target, char includeInfo);
 
-/* Helper functions for BasisVectors*/
+/* Decide to print partial of the BasisVector */
 void print_basis(struct BasisVectors* target);
