@@ -1,7 +1,7 @@
 #pragma once
 
 /* Global variables */
-#define DIMENSIONS 10000
+#define DIMENSIONS 10
 #define FEATURES 28
 #define CLASSES 10
 
@@ -43,7 +43,7 @@ struct BasisVectors{
 void populateBasis(struct BasisVectors* target);
 
 /* Encodes a sample vector by multiplying it with the basis matrix */
-void encode(struct HDvector *hdc, FeatType sample[]);
+void encode(struct HDvector *hdc, struct BasisVectors *basis, struct ENvector *encoded);
 
 /* Encodes a sample vector and adds it to the classList */
 void train(struct HDvector *hdc, FeatType sample[]);
@@ -58,7 +58,7 @@ int similarity(struct HDvector *hdc, FeatType sample[]);
 float float_rand(float min, float max);
 
 /* Generate Vector of size FEATURES with random FeatType element */
-struct HDvector *rng_gen(struct HDvector *target);
+void rng_gen(struct HDvector *target);
 
 void print_full_vector(struct HDvector *target);
 void print_partial_vector(struct HDvector *target);

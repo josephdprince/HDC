@@ -5,13 +5,24 @@
 #include <stdlib.h>
 #include <time.h>
 
+void encode(struct HDvector *hdc, struct BasisVectors *basis, struct ENvector *encoded) {
+  encoded->magnitude = 0;
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    for (int j = 0; j < FEATURES; ++j) {
+      encoded->vector[i] = hdc->vector[j] * basis->b_vectors[i].vector[j];
+      encoded->magnitude += powf(encoded->vector[i], 2);
+    }
+  }
+  encoded->magnitude = sqrtf(encoded->magnitude);
+}
+
 float float_rand(float min, float max) {
   // generate random float number
   float scale = (float)rand() / (float)RAND_MAX; /* [0, 1.0] */
   return min + scale * (max - min);              /* [min, max] */
 }
 
-struct HDvector* rng_gen(struct HDvector* target) { 
+void rng_gen(struct HDvector* target) { 
   // fill the given vector with randeom float # from -1 to 1
   static char initial_setup = 1;
   if (initial_setup == 1){
@@ -27,7 +38,6 @@ struct HDvector* rng_gen(struct HDvector* target) {
     total += powf(new_float, 2);
   }
   target->magnitude = sqrtf(total);
-  return target;
 }
 
 void print_full_vector(struct HDvector *target) {
@@ -61,31 +71,36 @@ void print_vector(struct HDvector *target, char includeInfo) {
   }
 }
 
-void populateBasis(struct BasisVectors* target){
+void populateBasis(struct BasisVectors* target) {
   for (int i = 0; i < DIMENSIONS; i++){
     rng_gen(&(target->b_vectors[i]));
   }
 }
 
-void print_basis(struct BasisVectors* target){
+void print_basis(struct BasisVectors* target) {
   int top_bot_num = 2; // decide how many elem at the top and at bottom to print
   printf("Printing a Basis-Vector of %i features by %i dimensions:\n", 
     FEATURES, DIMENSIONS);
   printf("[\n");
-  for(int i = 0; i < DIMENSIONS; i++){
-    if(i < top_bot_num || i >= DIMENSIONS-top_bot_num){
-      printf("\t");
-      printf("%i: ", i);
 
-      //print_full_vector(&target->b_vectors[i]);
-      print_vector(&(target->b_vectors[i]), FALSE);
-      if (i != DIMENSIONS - 1) {
-        printf(",\n");
-      }
-    }
-    if (i == 2 && !(i >= DIMENSIONS-top_bot_num)){
-      printf("\t.\n\t.\n\t.\n");
-    }
+  // Print [0, top_bot_num] of basis
+  for(int i = 0; i < top_bot_num; i++) {
+    printf("\t%i: ", i);
+
+    //print_full_vector(&target->b_vectors[i]);
+    print_vector(&(target->b_vectors[i]), FALSE);
+    printf("\n");
   }
+  printf("\t.\n\t.\n\t.\n");
+  
+  // Print [DIMENSIONS - top_bot_num, DIMENSIONS] of basis
+  for (int i = DIMENSIONS - top_bot_num; i < DIMENSIONS; ++i) { 
+     printf("\t%i: ", i);
+
+    //print_full_vector(&target->b_vectors[i]);
+    print_vector(&(target->b_vectors[i]), FALSE);
+    printf("\n");
+  }
+
   printf("\n]\n");
 }
