@@ -13,7 +13,11 @@ float float_rand(float min, float max) {
 
 struct HDvector* rng_gen(struct HDvector* target) { //TODO: NEED TO FIX SEED NOT CHANGING
   // fill the given vector with randeom float # from -1 to 1
-  srand(time(NULL));
+  static char initial_setup = 1;
+  if (initial_setup == 1){
+    srand(time(NULL));
+    initial_setup = 0;
+  }
   float total = 0;
   float new_float = 0;
 
@@ -71,8 +75,8 @@ void print_basis(struct BasisVectors* target){
     if(i < top_bot_num || i >= DIMENSIONS-top_bot_num){
       printf("\t");
       printf("%i: ", i);
-      print_full_vector(&target->b_vectors[i]);
-      //print_vector(&(target->b_vectors[i]), FALSE);
+      //print_full_vector(&target->b_vectors[i]);
+      print_vector(&(target->b_vectors[i]), FALSE);
       if (i != DIMENSIONS - 1) {
         printf(",\n");
       }

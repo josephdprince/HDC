@@ -4,6 +4,7 @@
 #define DIMENSIONS 10000
 #define FEATURES 28
 #define CLASSES 10
+
 #define FALSE 0
 #define TRUE 1
 
