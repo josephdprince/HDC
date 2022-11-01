@@ -69,14 +69,14 @@ void populateBasis(struct BasisVectors* target){
 
 void print_basis(struct BasisVectors* target){
   int top_bot_num = 2; // decide how many elem at the top and at bottom to print
-  printf("Printing a Basis-Vector of %i features X %i dimensions:\n", 
+  printf("Printing a Basis-Vector of %i features by %i dimensions:\n", 
     FEATURES, DIMENSIONS);
   printf("[\n");
   for(int i = 0; i < DIMENSIONS; i++){
     if(i < top_bot_num || i >= DIMENSIONS-top_bot_num){
       printf("\t");
       printf("%i: ", i);
-      
+
       //print_full_vector(&target->b_vectors[i]);
       print_vector(&(target->b_vectors[i]), FALSE);
       if (i != DIMENSIONS - 1) {

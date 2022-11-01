@@ -8,7 +8,7 @@
 #define FALSE 0
 #define TRUE 1
 
-typedef float FeatType element;
+typedef float FeatType;
 
 /* Different abstract structs====================================== */
 
@@ -29,7 +29,7 @@ struct ENvector {
 
 struct classList {
   //The classes we try to classify 
-  ENvector classes[CLASSES];
+  struct ENvector classes[CLASSES];
 };
 
 struct BasisVectors{
