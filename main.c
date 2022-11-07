@@ -31,5 +31,19 @@ int main() {
     printf("%f", encoded.vector[i]);
   }
   printf("\n");
+
+  // testing mapper
+  struct ENvector encoded1;
+  encoded1.max = 4;
+  encoded1.min = 0;
+  encoded1.vector[0] = 0;
+  encoded1.vector[1] = 1;
+  encoded1.vector[2] = 2;
+  encoded1.vector[3] = 3;
+  encoded1.vector[4] = 4;
+  mapper(&encoded1);
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    printf("%f ", encoded1.vector[i]);
+  }
   return 0;
 }

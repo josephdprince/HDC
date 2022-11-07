@@ -15,13 +15,15 @@ typedef float FeatType;
 /* A vector for all the data for each feature*/
 struct HDvector {
   // To represent a single fecture vector of the basis vector
-  FeatType magnitude;
+  FeatType min;
+  FeatType max;
   FeatType vector[FEATURES];
 };
 
 /* An encoded vector */
 struct ENvector {
-  FeatType magnitude;
+  FeatType min;
+  FeatType max;
   FeatType vector[DIMENSIONS];
 };
 
@@ -47,8 +49,11 @@ void encode(struct HDvector *hdc, struct BasisVectors *basis,
 /* Adds an encoded vector to the classList */
 void train(struct classList *l, int numClass, struct ENvector *sample);
 
-/* Normalize ENvectors in classList */
+/* Map values of ENvectors data in classList to [-1,1] */
 void normalize(struct classList *l, int numClass);
+
+/* Helper for normalize that actually does the mapping */
+void mapper(struct ENvector *en);
 
 /* Encodes a sample and compares it to the closest class in classList. Return is
  * a numerical value of the classification */
