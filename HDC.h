@@ -55,9 +55,9 @@ void normalize(struct classList *l, int numClass);
 /* Helper for normalize that actually does the mapping */
 void mapper(struct ENvector *en);
 
-/* Encodes a sample and compares it to the closest class in classList. Return is
- * a numerical value of the classification */
-int similarity(struct HDvector *hdc, FeatType sample[]);
+/* Encodes a sample and compares it to the closest class in classList using a
+ * cosine similarity. Returns a numerical value of the classification */
+int similarity(struct HDvector *sample, struct classList* l);
 
 /* ============== Helper functions for HDvector ============== */
 
