@@ -28,8 +28,6 @@ void encode(struct HDvector *hdc, struct BasisVectors *basis,
 }
 
 void train(struct classList *l, int numClass, struct ENvector *sample) {
-  // Is a float large enough?
-  float magnitude = 0;
   for (int i = 0; i < DIMENSIONS; ++i) {
     l->classes[numClass].vector[i] += sample->vector[i];
     l->classes[numClass].max =
@@ -44,9 +42,7 @@ void train(struct classList *l, int numClass, struct ENvector *sample) {
 }
 
 void normalize(struct classList *l, int numClass) {
-  for (int i = 0; i < DIMENSIONS; ++i) {
-    mapper(&l->classes[numClass]);
-  }
+  mapper(&l->classes[numClass]);
 }
 
 // output = output_start + ((output_end - output_start) / (input_end -
