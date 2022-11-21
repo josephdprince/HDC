@@ -53,6 +53,32 @@ void mapper(struct ENvector *en) {
   }
 }
 
+int similarity(struct HDvector *sample, struct classList *l) {
+  double z = 0.0;
+  float x, y;
+  y = 0.0;
+  for (int i = 0; i < CLASSES; i++) {
+    // cosine similarity of envector against vector in classlist
+    float x =
+        cosinesim2(&l->classes[i].vector[i], &encoded->vector[i], DIMENSIONS);
+    if (y > x) { // smaller value means closer?
+      y = x;
+      z = i;
+    }
+  }
+  return z;
+}
+
+float cosinesim2(FeatType *A, FeatType *B, unsigned int length) {
+  double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
+  for (unsigned int i = 0u; i < length; ++i) {
+    dot += A[i] * B[i];
+    denom_a += A[i] * A[i];
+    denom_b += B[i] * B[i];
+  }
+  return dot / (sqrt(denom_a) * sqrt(denom_b));
+}
+
 float float_rand(float min, float max) {
   // generate random float number
   float scale = (float)rand() / (float)RAND_MAX; /* [0, 1.0] */
