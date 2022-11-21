@@ -53,30 +53,33 @@ void mapper(struct ENvector *en) {
   }
 }
 
-int similarity(struct HDvector *sample, struct classList *l) {
-  double z = 0.0;
-  float x, y;
-  y = 0.0;
+int similarity(struct ENvector *encoded, struct classList *l) {
+  int closestClass;
+  float min = 10; // Just needs to be a value larger than pi
+  float curr = 0.0;
   for (int i = 0; i < CLASSES; i++) {
-    // cosine similarity of envector against vector in classlist
-    float x =
-        cosinesim2(&l->classes[i].vector[i], &encoded->vector[i], DIMENSIONS);
-    if (y > x) { // smaller value means closer?
-      y = x;
-      z = i;
+    curr = cosinesim(l->classes[i].vector, encoded->vector);
+    if (curr < min) {
+      min = curr;
+      closestClass = i;
     }
   }
-  return z;
+  return closestClass;
 }
 
-float cosinesim2(FeatType *A, FeatType *B, unsigned int length) {
-  double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
-  for (unsigned int i = 0u; i < length; ++i) {
-    dot += A[i] * B[i];
-    denom_a += A[i] * A[i];
-    denom_b += B[i] * B[i];
+float cosinesim(FeatType a[], FeatType b[]) {
+  // return arccos((a*b) / (|a|*|b|))
+  FeatType magA = 0.0;
+  FeatType magB = 0.0;
+  FeatType dot = 0.0;
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    magA += powf(a[i], 2); // FIXME: overflow??
+    magB += powf(b[i], 2); // FIXME: overflow??
+
+    dot += a[i] * b[i];
   }
-  return dot / (sqrt(denom_a) * sqrt(denom_b));
+
+  return acosf(dot / (sqrtf(magA) * sqrtf(magB)));
 }
 
 float float_rand(float min, float max) {

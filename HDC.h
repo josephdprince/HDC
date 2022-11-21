@@ -55,11 +55,15 @@ void normalize(struct classList *l, int numClass);
 /* Helper for normalize that actually does the mapping */
 void mapper(struct ENvector *en);
 
-/* Encodes a sample and compares it to the closest class in classList using a
- * cosine similarity. Returns a numerical value of the classification */
-int similarity(struct HDvector *sample, struct classList* l);
+/* Compares an encoded sample to the closest class in classList using a
+ * cosine similarity. Returns a numerical value of the classification. */
+int similarity(struct ENvector *sample, struct classList *l);
 
 /* ============== Helper functions for HDvector ============== */
+
+/* Performs a cosine similarity between vector a and b. Returns the angle
+ * between two both vectors in radians */
+float cosinesim(FeatType a[], FeatType b[]);
 
 /* Generate random float number [min, max] */
 float float_rand(float min, float max);
