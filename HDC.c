@@ -53,6 +53,35 @@ void mapper(struct ENvector *en) {
   }
 }
 
+int similarity(struct ENvector *encoded, struct classList *l) {
+  int closestClass;
+  float min = 10; // Just needs to be a value larger than pi
+  float curr = 0.0;
+  for (int i = 0; i < CLASSES; i++) {
+    curr = cosinesim(l->classes[i].vector, encoded->vector);
+    if (curr < min) {
+      min = curr;
+      closestClass = i;
+    }
+  }
+  return closestClass;
+}
+
+float cosinesim(FeatType a[], FeatType b[]) {
+  // return arccos((a*b) / (|a|*|b|))
+  FeatType magA = 0.0;
+  FeatType magB = 0.0;
+  FeatType dot = 0.0;
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    magA += powf(a[i], 2); // FIXME: overflow??
+    magB += powf(b[i], 2); // FIXME: overflow??
+
+    dot += a[i] * b[i];
+  }
+
+  return acosf(dot / (sqrtf(magA) * sqrtf(magB)));
+}
+
 float float_rand(float min, float max) {
   // generate random float number
   float scale = (float)rand() / (float)RAND_MAX; /* [0, 1.0] */
