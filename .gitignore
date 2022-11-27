@@ -5,3 +5,5 @@ CMakeFiles
 CMakeCache.txt
 .vscode
 build/*
+DataBase/mnist_train.csv
+DataBase/mnist_test.csv
