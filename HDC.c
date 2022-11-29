@@ -13,8 +13,8 @@ void populateBasis(struct BasisVectors *target) {
 
 void encode(struct HDvector *hdc, struct BasisVectors *basis,
             struct ENvector *encoded) {
-  encoded->min = 1;
-  encoded->max = -1;
+  encoded->min = DIMENSIONS;
+  encoded->max = DIMENSIONS * -1;
   for (int i = 0; i < DIMENSIONS; ++i) {
     encoded->vector[i] = 0;
     for (int j = 0; j < FEATURES; ++j) {
