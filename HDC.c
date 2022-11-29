@@ -16,13 +16,14 @@ void encode(struct HDvector *hdc, struct BasisVectors *basis,
   encoded->min = 1;
   encoded->max = -1;
   for (int i = 0; i < DIMENSIONS; ++i) {
+    encoded->vector[i] = 0;
     for (int j = 0; j < FEATURES; ++j) {
-      encoded->vector[i] = hdc->vector[j] * basis->b_vectors[i].vector[j];
-      encoded->max =
-          encoded->vector[i] > encoded->max ? encoded->vector[i] : encoded->max;
-      encoded->min =
-          encoded->vector[i] < encoded->min ? encoded->vector[i] : encoded->min;
+      encoded->vector[i] += hdc->vector[j] * basis->b_vectors[i].vector[j];
     }
+    encoded->max =
+        encoded->vector[i] > encoded->max ? encoded->vector[i] : encoded->max;
+    encoded->min =
+        encoded->vector[i] < encoded->min ? encoded->vector[i] : encoded->min;
   }
   mapper(encoded);
 }
