@@ -1,4 +1,4 @@
-#include "HDC.h"
+#include "src/HDC.h"
 #include <stdio.h>
 
 int main() {

@@ -2,10 +2,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
 
 project(HDC)
 
-ADD_EXECUTABLE(${PROJECT_NAME} main.c HDC.c)
-ADD_EXECUTABLE(test gtest.cpp)
+add_subdirectory(src)
+add_subdirectory(tests)
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} PRIVATE m)
-TARGET_LINK_LIBRARIES(test gtest)
+ADD_EXECUTABLE(${PROJECT_NAME} main.c)
 
-TARGET_COMPILE_DEFINITIONS(test PRIVATE gtest_disable_pthreads=ON)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} src_code)
