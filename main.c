@@ -9,9 +9,9 @@ int main() {
   rng_gen(&test1);
   rng_gen(&test2);
   printf("Print vector:\n");
-  print_vector(&test1, TRUE);
+  print_vector(&test1, TRUE, PARTIAL);
   printf("\n");
-  print_vector(&test2, TRUE);
+  print_vector(&test2, TRUE, PARTIAL);
   printf("\n");
   // printf("Print full vector\n");
   // print_full_vector(test1);

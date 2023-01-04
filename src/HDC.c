@@ -11,14 +11,14 @@ void populateBasis(struct BasisVectors *target) {
   }
 }
 
-void encode(struct HDvector *hdc, struct BasisVectors *basis,
+void encode(struct HDvector *hdv, struct BasisVectors *basis,
             struct ENvector *encoded) {
   encoded->min = DIMENSIONS;
   encoded->max = DIMENSIONS * -1;
   for (int i = 0; i < DIMENSIONS; ++i) {
     encoded->vector[i] = 0;
     for (int j = 0; j < FEATURES; ++j) {
-      encoded->vector[i] += hdc->vector[j] * basis->b_vectors[i].vector[j];
+      encoded->vector[i] += hdv->vector[j] * basis->b_vectors[i].vector[j];
     }
     encoded->max =
         encoded->vector[i] > encoded->max ? encoded->vector[i] : encoded->max;
@@ -52,6 +52,8 @@ void mapper(struct ENvector *en) {
   for (int i = 0; i < DIMENSIONS; ++i) {
     en->vector[i] = -1 + (2 / (en->max - en->min)) * (en->vector[i] - en->min);
   }
+  en->min = -1;
+  en->max = 1;
 }
 
 int similarity(struct ENvector *encoded, struct classList *l) {
@@ -90,7 +92,7 @@ float float_rand(float min, float max) {
 }
 
 void rng_gen(struct HDvector *target) {
-  // fill the given vector with randeom float # from -1 to 1
+  // fill the given vector with random float # from -1 to 1
   static char initial_setup = 1;
   if (initial_setup == 1) {
     srand(time(NULL));
@@ -111,13 +113,13 @@ void rng_gen(struct HDvector *target) {
   }
 }
 
-void print_vector(struct HDvector *target, char includeInfo) {
+void print_vector(struct HDvector *target, char includeInfo, char printSize) {
   // print the full vector if the size is <= 4, otherwise just print partial
   if (includeInfo) {
     printf("Printing a %i-wide vector w/ a min of %f and a max of %f :\n",
            FEATURES, target->min, target->max);
   }
-  if (FEATURES <= 4) {
+  if (printSize) {
     print_full_vector(target);
   } else {
     print_partial_vector(target);
@@ -143,6 +145,38 @@ void print_partial_vector(struct HDvector *target) {
          target->vector[FEATURES - 2], target->vector[FEATURES - 1]);
 }
 
+void print_encoded(struct ENvector *target, char includeInfo, char printSize) {
+  // print the full vector if the size is <= 4, otherwise just print partial
+  if (includeInfo) {
+    printf("Printing a %i-wide vector w/ a min of %f and a max of %f :\n",
+           DIMENSIONS, target->min, target->max);
+  }
+  if (printSize) {
+    print_full_encoded(target);
+  } else {
+    print_partial_encoded(target);
+  }
+}
+
+void print_full_encoded(struct ENvector *target) {
+  // This function print all the elements in the vector
+  printf("[");
+  for (int i = 0; i < DIMENSIONS; i++) {
+    printf("%f", target->vector[i]);
+    if (i != DIMENSIONS - 1) {
+      printf(", ");
+    }
+  }
+  printf("]");
+}
+
+void print_partial_encoded(struct ENvector *target) {
+  // only print the first 2 and last 2
+  // assume target.vector size is atleast 2, should be 4
+  printf("[%f, %f, ..., %f, %f]", target->vector[0], target->vector[1],
+         target->vector[DIMENSIONS - 2], target->vector[DIMENSIONS - 1]);
+}
+
 void print_basis(struct BasisVectors *target) {
   int top_bot_num = 2; // decide how many elem at the top and at bottom to print
   printf("Printing a Basis-Vector of %i features by %i dimensions:\n", FEATURES,
@@ -154,7 +188,7 @@ void print_basis(struct BasisVectors *target) {
     printf("\t%i: ", i);
 
     // print_full_vector(&target->b_vectors[i]);
-    print_vector(&(target->b_vectors[i]), FALSE);
+    print_vector(&(target->b_vectors[i]), FALSE, PARTIAL);
     printf("\n");
   }
   printf("\t.\n\t.\n\t.\n");
@@ -164,7 +198,7 @@ void print_basis(struct BasisVectors *target) {
     printf("\t%i: ", i);
 
     // print_full_vector(&target->b_vectors[i]);
-    print_vector(&(target->b_vectors[i]), FALSE);
+    print_vector(&(target->b_vectors[i]), FALSE, PARTIAL);
     printf("\n");
   }
 

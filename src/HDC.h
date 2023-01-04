@@ -8,6 +8,9 @@
 #define FALSE 0
 #define TRUE 1
 
+#define PARTIAL 0
+#define FULL 1
+
 typedef float FeatType;
 
 /* ============== Different abstract structs ============== */
@@ -43,7 +46,7 @@ struct BasisVectors {
 void populateBasis(struct BasisVectors *target);
 
 /* Encodes a sample vector by multiplying it with the basis matrix */
-void encode(struct HDvector *hdc, struct BasisVectors *basis,
+void encode(struct HDvector *hdv, struct BasisVectors *basis,
             struct ENvector *encoded);
 
 /* Adds an encoded vector to the classList */
@@ -72,9 +75,13 @@ float float_rand(float min, float max);
 void rng_gen(struct HDvector *target);
 
 /* Decide to print partial or full vector */
-void print_vector(struct HDvector *target, char includeInfo);
+void print_vector(struct HDvector *target, char includeInfo, char printSize);
 void print_full_vector(struct HDvector *target);
 void print_partial_vector(struct HDvector *target);
+
+void print_encoded(struct ENvector *target, char includeInfo, char printSize);
+void print_full_encoded(struct ENvector *target);
+void print_partial_encoded(struct ENvector *target);
 
 /* Decide to print partial of the BasisVector */
 void print_basis(struct BasisVectors *target);
