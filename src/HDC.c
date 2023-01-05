@@ -28,7 +28,7 @@ void encode(struct HDvector *hdv, struct BasisVectors *basis,
   mapper(encoded);
 }
 
-void train(struct classList *l, int numClass, struct ENvector *sample) {
+void train(struct ClassList *l, int numClass, struct ENvector *sample) {
   for (int i = 0; i < DIMENSIONS; ++i) {
     l->classes[numClass].vector[i] += sample->vector[i];
     l->classes[numClass].max =
@@ -42,7 +42,7 @@ void train(struct classList *l, int numClass, struct ENvector *sample) {
   }
 }
 
-void normalize(struct classList *l, int numClass) {
+void normalize(struct ClassList *l, int numClass) {
   mapper(&l->classes[numClass]);
 }
 
@@ -56,8 +56,8 @@ void mapper(struct ENvector *en) {
   en->max = 1;
 }
 
-int similarity(struct ENvector *encoded, struct classList *l) {
-  int closestClass;
+int similarity(struct ENvector *encoded, struct ClassList *l) {
+  int closestClass = -1;
   float min = 10; // Just needs to be a value larger than pi
   float curr = 0.0;
   for (int i = 0; i < CLASSES; i++) {
@@ -71,13 +71,13 @@ int similarity(struct ENvector *encoded, struct classList *l) {
 }
 
 float cosinesim(FeatType a[], FeatType b[]) {
-  // return arccos((a*b) / (|a|*|b|))
+  // Return arccos((a*b) / (|a|*|b|))
   FeatType magA = 0.0;
   FeatType magB = 0.0;
   FeatType dot = 0.0;
   for (int i = 0; i < DIMENSIONS; ++i) {
-    magA += powf(a[i], 2); // FIXME: overflow??
-    magB += powf(b[i], 2); // FIXME: overflow??
+    magA += powf(a[i], 2); // FIXME: Overflow??
+    magB += powf(b[i], 2); // FIXME: Overflow??
 
     dot += a[i] * b[i];
   }
@@ -86,13 +86,13 @@ float cosinesim(FeatType a[], FeatType b[]) {
 }
 
 float float_rand(float min, float max) {
-  // generate random float number
+  // Generate random float number
   float scale = (float)rand() / (float)RAND_MAX; /* [0, 1.0] */
   return min + scale * (max - min);              /* [min, max] */
 }
 
 void rng_gen(struct HDvector *target) {
-  // fill the given vector with random float # from -1 to 1
+  // Fill the given vector with random float # from -1 to 1
   static char initial_setup = 1;
   if (initial_setup == 1) {
     srand(time(NULL));
@@ -114,7 +114,7 @@ void rng_gen(struct HDvector *target) {
 }
 
 void print_vector(struct HDvector *target, char includeInfo, char printSize) {
-  // print the full vector if the size is <= 4, otherwise just print partial
+  // Print the full vector if the size is <= 4, otherwise just print partial
   if (includeInfo) {
     printf("Printing a %i-wide vector w/ a min of %f and a max of %f :\n",
            FEATURES, target->min, target->max);
@@ -139,14 +139,14 @@ void print_full_vector(struct HDvector *target) {
 }
 
 void print_partial_vector(struct HDvector *target) {
-  // only print the first 2 and last 2
-  // assume target.vector size is atleast 2, should be 4
+  // Only print the first 2 and last 2
+  // Assume target.vector size is at least 2, should be 4
   printf("[%f, %f, ..., %f, %f]", target->vector[0], target->vector[1],
          target->vector[FEATURES - 2], target->vector[FEATURES - 1]);
 }
 
 void print_encoded(struct ENvector *target, char includeInfo, char printSize) {
-  // print the full vector if the size is <= 4, otherwise just print partial
+  // Print the full vector if the size is <= 4, otherwise just print partial
   if (includeInfo) {
     printf("Printing a %i-wide vector w/ a min of %f and a max of %f :\n",
            DIMENSIONS, target->min, target->max);
@@ -171,14 +171,14 @@ void print_full_encoded(struct ENvector *target) {
 }
 
 void print_partial_encoded(struct ENvector *target) {
-  // only print the first 2 and last 2
-  // assume target.vector size is atleast 2, should be 4
+  // Only print the first 2 and last 2
+  // Assume target.vector size is atleast 2, should be 4
   printf("[%f, %f, ..., %f, %f]", target->vector[0], target->vector[1],
          target->vector[DIMENSIONS - 2], target->vector[DIMENSIONS - 1]);
 }
 
 void print_basis(struct BasisVectors *target) {
-  int top_bot_num = 2; // decide how many elem at the top and at bottom to print
+  int top_bot_num = 2; // Decide how many elem at the top and at bottom to print
   printf("Printing a Basis-Vector of %i features by %i dimensions:\n", FEATURES,
          DIMENSIONS);
   printf("[\n");
@@ -187,7 +187,6 @@ void print_basis(struct BasisVectors *target) {
   for (int i = 0; i < top_bot_num; i++) {
     printf("\t%i: ", i);
 
-    // print_full_vector(&target->b_vectors[i]);
     print_vector(&(target->b_vectors[i]), FALSE, PARTIAL);
     printf("\n");
   }
@@ -197,7 +196,6 @@ void print_basis(struct BasisVectors *target) {
   for (int i = DIMENSIONS - top_bot_num; i < DIMENSIONS; ++i) {
     printf("\t%i: ", i);
 
-    // print_full_vector(&target->b_vectors[i]);
     print_vector(&(target->b_vectors[i]), FALSE, PARTIAL);
     printf("\n");
   }
