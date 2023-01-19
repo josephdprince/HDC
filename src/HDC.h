@@ -48,6 +48,10 @@ void populateBasis(struct BasisVectors *target);
 void encode(struct HDvector *hdv, struct BasisVectors *basis,
             struct ENvector *encoded);
 
+/* Does the matrix multiplication for the encode step */
+void matrixmult(struct HDvector *hdv, struct BasisVectors *basis,
+                struct ENvector *encoded);
+
 /* Adds an encoded vector to the ClassList */
 void train(struct ClassList *l, int numClass, struct ENvector *sample);
 

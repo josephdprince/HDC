@@ -15,9 +15,20 @@ void encode(struct HDvector *hdv, struct BasisVectors *basis,
             struct ENvector *encoded) {
   encoded->min = DIMENSIONS;
   encoded->max = DIMENSIONS * -1;
+
+  matrixmult(hdv, basis, encoded);
+
+  mapper(encoded);
+}
+
+void matrixmult(struct HDvector *hdv, struct BasisVectors *basis,
+                struct ENvector *encoded) {
   for (int i = 0; i < DIMENSIONS; ++i) {
     encoded->vector[i] = 0;
     for (int j = 0; j < FEATURES; ++j) {
+      #pragma HLS loop_flatten
+      #pragma HLS pipeline
+      #pragma HLS unroll
       encoded->vector[i] += hdv->vector[j] * basis->b_vectors[i].vector[j];
     }
     encoded->max =
@@ -25,12 +36,12 @@ void encode(struct HDvector *hdv, struct BasisVectors *basis,
     encoded->min =
         encoded->vector[i] < encoded->min ? encoded->vector[i] : encoded->min;
   }
-  mapper(encoded);
 }
 
 void train(struct ClassList *l, int numClass, struct ENvector *sample) {
   for (int i = 0; i < DIMENSIONS; ++i) {
     l->classes[numClass].vector[i] += sample->vector[i];
+
     l->classes[numClass].max =
         l->classes[numClass].vector[i] > l->classes[numClass].max
             ? l->classes[numClass].vector[i]
