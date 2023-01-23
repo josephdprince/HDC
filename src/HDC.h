@@ -1,8 +1,8 @@
 #pragma once
 
 /* Global variables */
-#define DIMENSIONS 10
-#define FEATURES 28
+#define DIMENSIONS 1000
+#define FEATURES 784
 #define CLASSES 10
 
 #define FALSE 0
@@ -16,7 +16,7 @@ typedef float FeatType;
 /* ============== Different abstract structs ============== */
 
 /* A vector for all the data for each feature */
-struct HDvector {
+struct FTvector {
   FeatType min;
   FeatType max;
   FeatType vector[FEATURES];
@@ -36,7 +36,7 @@ struct ClassList {
 
 /* Basis vector used for encoding */
 struct BasisVectors {
-  struct HDvector b_vectors[DIMENSIONS];
+  struct FTvector b_vectors[DIMENSIONS];
 };
 
 /* ============== Main fucntions for HDC ============== */
@@ -45,11 +45,11 @@ struct BasisVectors {
 void populateBasis(struct BasisVectors *target);
 
 /* Encodes a sample vector by multiplying it with the basis matrix */
-void encode(struct HDvector *hdv, struct BasisVectors *basis,
+void encode(struct FTvector *sample, struct BasisVectors *basis,
             struct ENvector *encoded);
 
 /* Does the matrix multiplication for the encode step */
-void matrixmult(struct HDvector *hdv, struct BasisVectors *basis,
+void matrixmult(struct FTvector *sample, struct BasisVectors *basis,
                 struct ENvector *encoded);
 
 /* Adds an encoded vector to the ClassList */
@@ -65,7 +65,7 @@ void mapper(struct ENvector *en);
  * cosine similarity. Returns a numerical value of the classification. */
 int similarity(struct ENvector *sample, struct ClassList *l);
 
-/* ============== Helper functions for HDvector and ENvector ============== */
+/* ============== Helper functions for FTvector and ENvector ============== */
 
 /* Performs a cosine similarity between vector a and b. Returns the angle
  * between both vectors in radians. */
@@ -75,12 +75,12 @@ float cosinesim(FeatType a[], FeatType b[]);
 float float_rand(float min, float max);
 
 /* Populate target's vector with random FeatType element */
-void rng_gen(struct HDvector *target);
+void rng_gen(struct FTvector *target);
 
-/* Decide to print partial or full HDvector */
-void print_vector(struct HDvector *target, char includeInfo, char printSize);
-void print_full_vector(struct HDvector *target);
-void print_partial_vector(struct HDvector *target);
+/* Decide to print partial or full FTvector */
+void print_vector(struct FTvector *target, char includeInfo, char printSize);
+void print_full_vector(struct FTvector *target);
+void print_partial_vector(struct FTvector *target);
 
 /* Decide to print partial or full ENvector */
 void print_encoded(struct ENvector *target, char includeInfo, char printSize);
