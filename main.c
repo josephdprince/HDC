@@ -17,7 +17,8 @@ void classify_train(struct FTvector *sample, struct BasisVectors *basis,
                     struct ENvector *encoded, struct ClassList *classes,
                     int classIdentity);
 
-void classify_test(struct ENvector *encoded, struct ClassList *classes,
+void classify_test(struct FTvector *sample, struct BasisVectors *basis,
+                   struct ENvector *encoded, struct ClassList *classes,
                    int classIdentity, int *correct, int *total);
 
 int main() {
@@ -85,7 +86,15 @@ int parse_file_and_classify(int mode, struct FTvector *sample,
 
     // At this point, curr is the identity of the data
     curr = fgetc(fp);
-    int classIdentity = curr;
+    int c = 0;
+    while (curr < 32 && !feof(fp)) {
+      curr = fgetc(fp);
+      c++;
+      if (c > 50) {
+        printf("HELP I AM STUCK! ");
+      }
+    }
+    int classIdentity = curr - 48;
 
     int pixelVal = 0;
     int loc = 0;
@@ -123,13 +132,17 @@ int parse_file_and_classify(int mode, struct FTvector *sample,
     if (mode) {
       classify_train(sample, basis, encoded, classes, classIdentity);
     } else {
-      classify_test(encoded, classes, classIdentity, &correct, &total);
+      if (!feof(fp)) {
+        classify_test(sample, basis, encoded, classes, classIdentity, &correct,
+                      &total);
+      }
     }
   }
 
   if (!mode) {
-    printf("\nThe classification algorithm was %i%% accurate.",
-           correct * 100 / total);
+    printf("\nThe classification algorithm passed %i/%i tests for a %.2f%% "
+           "accuracy.\n",
+           correct, total, (double)(correct * 100) / (double)total);
   }
 
   fclose(fp);
@@ -147,15 +160,18 @@ void classify_train(struct FTvector *sample, struct BasisVectors *basis,
   train(classes, classIdentity, encoded);
 }
 
-void classify_test(struct ENvector *encoded, struct ClassList *classes,
+void classify_test(struct FTvector *sample, struct BasisVectors *basis,
+                   struct ENvector *encoded, struct ClassList *classes,
                    int classIdentity, int *correct, int *total) {
+  encode(sample, basis, encoded);
+
   int classification = similarity(encoded, classes);
   printf("Identity: %i   Classification: %i   ", classIdentity, classification);
   if (classification == classIdentity) {
     printf("PASSED\n");
-    ++correct;
+    ++(*correct);
   } else {
     printf("FAILED\n");
   }
-  ++total;
+  ++(*total);
 }
