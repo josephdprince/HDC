@@ -1,7 +1,7 @@
 #pragma once
 
 /* Global variables */
-#define DIMENSIONS 1000
+#define DIMENSIONS 10000
 #define FEATURES 784
 #define CLASSES 10
 

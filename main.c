@@ -1,5 +1,8 @@
 #include "src/HDC.h"
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #define TRAIN 1
@@ -23,19 +26,28 @@ void classify_test(struct FTvector *sample, struct BasisVectors *basis,
 
 int main() {
   struct FTvector sample;
-  struct BasisVectors basis;
+  struct BasisVectors *basis =
+      (struct BasisVectors *)malloc(sizeof(struct BasisVectors));
   struct ENvector encoded;
   struct ClassList classes;
 
-  populateBasis(&basis);
+  clock_t start;
+  clock_t end;
+  double train_time;
+  double test_time;
 
+  populateBasis(basis);
+
+  int status;
   // Get data from train dataset and populate into class list
   printf("Starting Train\n");
-  int status =
-      parse_file_and_classify(TRAIN, &sample, &basis, &encoded, &classes);
+  start = clock();
+  status = parse_file_and_classify(TRAIN, &sample, basis, &encoded, &classes);
   if (status == -1) {
     return status;
   }
+  end = clock();
+  train_time = ((double)(end - start)) / CLOCKS_PER_SEC;
 
   // Now all the classes are filled, but they need to be normalized.
   for (int i = 0; i < CLASSES; ++i) {
@@ -44,10 +56,17 @@ int main() {
 
   // Get data from test dataset and run a similarity
   printf("Starting Test\n");
-  status = parse_file_and_classify(TEST, &sample, &basis, &encoded, &classes);
+  start = clock();
+  status = parse_file_and_classify(TEST, &sample, basis, &encoded, &classes);
   if (status == -1) {
     return status;
   }
+  end = clock();
+  test_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+  printf(
+      "Training finished in %.2f seconds\nTesting finished in %.2f seconds\n",
+      train_time, test_time);
 
   return 0;
 }
@@ -174,4 +193,23 @@ void classify_test(struct FTvector *sample, struct BasisVectors *basis,
     printf("FAILED\n");
   }
   ++(*total);
+}
+
+int store_classes(struct ClassList *classes) {
+  FILE *fp;
+  fp = fopen("trained_classes.csv", "w");
+  if (fp == NULL) {
+    perror("Error in opening file");
+    return (-1);
+  }
+  printf("We good\n");
+
+  for (int i = 0; i < CLASSES; ++i) {
+    for (int j = 0; j < DIMENSIONS; ++j) {
+      fprintf(fp, "%f,", classes->classes[i].vector[j]);
+    }
+    fprintf(fp, "%f,%f\n", classes->classes[i].min, classes->classes[i].max);
+  }
+
+  return 0;
 }
