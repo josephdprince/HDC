@@ -65,7 +65,7 @@ TEST(EncodingTests, MIN_MAX_TEST) {
 
 TEST(EncodingTests, ENCODE_TEST) {
   struct BasisVectors basis;
-  struct HDvector sample;
+  struct FTvector sample;
   struct ENvector encoded;
 
   // Generate values in basis matrix and sample vector
@@ -107,7 +107,7 @@ TEST(EncodingTests, ENCODE_TEST) {
 
 TEST(TrainingTests, TRAIN_STEP) {
   struct BasisVectors basis;
-  struct HDvector sample1, sample2;
+  struct FTvector sample1, sample2;
   struct ENvector encoded1, encoded2;
   struct ClassList classes;
 
@@ -150,7 +150,7 @@ TEST(TrainingTests, TRAIN_STEP) {
 
 TEST(TrainingTests, NORMALIZE_AFTER_TRAIN) {
   struct BasisVectors basis;
-  struct HDvector sample1, sample2;
+  struct FTvector sample1, sample2;
   struct ENvector encoded1, encoded2;
   struct ClassList classes;
 
@@ -197,7 +197,7 @@ TEST(TrainingTests, NORMALIZE_AFTER_TRAIN) {
 // just check if the code is able to make a decision
 TEST(SimilarityTests, COSINE_SIM) {
   struct BasisVectors basis;
-  struct HDvector sample, trainData1, trainData2, trainData3;
+  struct FTvector sample, trainData1, trainData2, trainData3;
   struct ENvector encodedSample, encodedData1, encodedData2, encodedData3;
   struct ClassList classes;
 
