@@ -11,26 +11,37 @@ void populateBasis(struct BasisVectors *target) {
   }
 }
 
-void encode(struct HDvector *hdv, struct BasisVectors *basis,
+void encode(struct FTvector *sample, struct BasisVectors *basis,
             struct ENvector *encoded) {
   encoded->min = DIMENSIONS;
   encoded->max = DIMENSIONS * -1;
+
+  matrixmult(sample, basis, encoded);
+
+  mapper(encoded);
+}
+
+void matrixmult(struct FTvector *sample, struct BasisVectors *basis,
+                struct ENvector *encoded) {
   for (int i = 0; i < DIMENSIONS; ++i) {
     encoded->vector[i] = 0;
     for (int j = 0; j < FEATURES; ++j) {
-      encoded->vector[i] += hdv->vector[j] * basis->b_vectors[i].vector[j];
+#pragma HLS loop_flatten
+#pragma HLS pipeline
+#pragma HLS unroll
+      encoded->vector[i] += sample->vector[j] * basis->b_vectors[i].vector[j];
     }
     encoded->max =
         encoded->vector[i] > encoded->max ? encoded->vector[i] : encoded->max;
     encoded->min =
         encoded->vector[i] < encoded->min ? encoded->vector[i] : encoded->min;
   }
-  mapper(encoded);
 }
 
-void train(struct ClassList *l, int numClass, struct ENvector *sample) {
+void train(struct ClassList *l, int numClass, struct ENvector *encoded) {
   for (int i = 0; i < DIMENSIONS; ++i) {
-    l->classes[numClass].vector[i] += sample->vector[i];
+    l->classes[numClass].vector[i] += encoded->vector[i];
+
     l->classes[numClass].max =
         l->classes[numClass].vector[i] > l->classes[numClass].max
             ? l->classes[numClass].vector[i]
@@ -91,7 +102,7 @@ float float_rand(float min, float max) {
   return min + scale * (max - min);              /* [min, max] */
 }
 
-void rng_gen(struct HDvector *target) {
+void rng_gen(struct FTvector *target) {
   // Fill the given vector with random float # from -1 to 1
   static char initial_setup = 1;
   if (initial_setup == 1) {
@@ -113,7 +124,7 @@ void rng_gen(struct HDvector *target) {
   }
 }
 
-void print_vector(struct HDvector *target, char includeInfo, char printSize) {
+void print_vector(struct FTvector *target, char includeInfo, char printSize) {
   // Print the full vector if the size is <= 4, otherwise just print partial
   if (includeInfo) {
     printf("Printing a %i-wide vector w/ a min of %f and a max of %f :\n",
@@ -126,7 +137,7 @@ void print_vector(struct HDvector *target, char includeInfo, char printSize) {
   }
 }
 
-void print_full_vector(struct HDvector *target) {
+void print_full_vector(struct FTvector *target) {
   // This function print all the elements in the vector
   printf("[");
   for (int i = 0; i < FEATURES; i++) {
@@ -138,7 +149,7 @@ void print_full_vector(struct HDvector *target) {
   printf("]");
 }
 
-void print_partial_vector(struct HDvector *target) {
+void print_partial_vector(struct FTvector *target) {
   // Only print the first 2 and last 2
   // Assume target.vector size is at least 2, should be 4
   printf("[%f, %f, ..., %f, %f]", target->vector[0], target->vector[1],
