@@ -1,96 +1,165 @@
-#include "HDC.h"
-#include "hls_math.h"
+#include "HDC_HLS.h"
+#include <math.h>
 
 /* Encodes a sample vector by multiplying it with the basis matrix */
+/*min = DIIMENSION, max = DIMENSION *-1*/
 void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS*FEATURES],
-            FeatType encoded[DIMENSIONS], float* min, float* max){
-#pragma HLS INTERFACE m_axi port=sample offset=slave bundle=sample
-#pragma HLS INTERFACE s_axilite register port=sample bundle=ctrl
-#pragma HLS INTERFACE m_axi port=basis offset=slave bundle=basis
-#pragma HLS INTERFACE s_axilite register port=basis bundle=ctrl
-#pragma HLS INTERFACE m_axi port=encoded offset=slave bundle=encoded
-#pragma HLS INTERFACE s_axilite register port=encoded bundle=ctrl
-#pragma HLS INTERFACE s_axilite register port=return bundle=ctrl
+            FeatType encoded[DIMENSIONS], FeatType* min, FeatType* max){
+
+	#pragma HLS INTERFACE m_axi port=sample offset=slave bundle=sample
+	#pragma HLS INTERFACE s_axilite register port=sample bundle=ctrl
+	#pragma HLS INTERFACE m_axi port=basis offset=slave bundle=basis
+	#pragma HLS INTERFACE s_axilite register port=basis bundle=ctrl
+	#pragma HLS INTERFACE m_axi port=encoded offset=slave bundle=encoded
+	#pragma HLS INTERFACE s_axilite register port=encoded bundle=ctrl
+	#pragma HLS INTERFACE s_axilite register port=return bundle=ctrl
 
     FeatType sample_local[FEATURES];
-    FeatType basis_local[FEATURES * DIMENSIONS];
+    FeatType basis_local[DIMENSIONS*FEATURES];
     FeatType encoded_local[DIMENSIONS];
 
-/*
-Partion the basis_local into blocks of size Dimensions. 
-It is bc the array can be too big to load in at once
-*/
-#pragma HLS ARRAY_PARTITION variable=basis_local type=block factor=DIMENSIONS
-
-#pragma HLS dataflow
+	/*
+	Partion the basis_local into blocks of size Dimensions.
+	It is bc the array can be too big to load in at once
+	*/
+	#pragma HLS ARRAY_PARTITION variable=basis_local type=block factor=DIMENSIONS
 
     for (int i = 0; i < FEATURES; i++) {
-#pragma HLS pipeline
+		#pragma HLS pipeline
         sample_local[i] = sample[i];
     }
 
     for (int i = 0; i < FEATURES * DIMENSIONS; i++) {
-#pragma HLS pipeline
+		#pragma HLS pipeline
         basis_local[i] = basis[i];
     }
 
-    *min = DIMENSIONS;
-    *max = DIMENSIONS * -1;
+    //matrixmult(sample_local, basis_local, *min, *max, encoded_local, min, max);
     matrixmult(sample_local, basis_local, encoded_local, min, max);
     mapper(encoded_local, min, max);
     for (int i = 0; i < DIMENSIONS; i++) {
-#pragma HLS pipeline
+		#pragma HLS pipeline
         encoded[i] = encoded_local[i];
     }
 
-
-    return 0;
 }
 
-/* Does the matrix multiplication for the encode step */
-void matrixmult(FeatType sample[FEATURES], FeatType basis[DIMENSIONS*FEATURES],
-                FeatType encoded[DIMENSIONS], float* min, float* max){
+/* Does the matrix multiplication for the encode step
+ * min max are the input and read only
+ * minR.and maxR are the output and write only
+ */
+//void matrixmult(//input
+//				FeatType sample[FEATURES],
+//				FeatType basis[FEATURES*DIMENSIONS],
+//				FeatType minI, FeatType maxI,
+//				//output
+//                FeatType encoded[DIMENSIONS],
+//				FeatType* minR, FeatType* maxR){
+//    for (int i = 0; i < DIMENSIONS; i++) {
+//		#pragma HLS pipeline
+//        encoded[i] = 0;
+//    }
+//    for (int i =0; i < FEATURES*DIMENSIONS; i++){
+//		#pragma HLS pipeline
+//		encoded[i / FEATURES] += sample[i % FEATURES] * basis[i];
+//    }
+//
+//    FeatType min_local = minI;
+//    FeatType max_local = maxI;
+//	//There can be data dependence
+//    for (int i = 0; i < DIMENSIONS; i++){
+//    	max_local = (encoded[i] > max_local) ? encoded[i] : max_local;
+//    	min_local = (encoded[i] < min_local) ? encoded[i] : min_local;
+//    }
+//	*maxR = max_local;
+//	*minR = min_local;
+//
+//}
+
+void matrixmult(//input
+				FeatType sample[FEATURES],
+				FeatType basis[FEATURES*DIMENSIONS],
+				//output
+                FeatType encoded[DIMENSIONS],
+				FeatType* minR, FeatType* maxR){
     for (int i = 0; i < DIMENSIONS; i++) {
-#pragma HLS pipeline
+		#pragma HLS pipeline
         encoded[i] = 0;
     }
-    for (int j = 0; j < FEATURES; ++j) {
-#pragma HLS pipeline
-        for (int i = 0; i < DIMENSIONS; ++i) {
-//#pragma HLS unroll
-            encoded[i] += sample[j] * basis[i * j];
-        }
-        *max = (encoded[i] > *max) ? encoded[i] : *max;
-        *min = (encoded[i] < *min) ? encoded[i] : *min;
+    for (int i =0; i < FEATURES*DIMENSIONS; i++){
+		#pragma HLS pipeline
+		encoded[i / FEATURES] += sample[i % FEATURES] * basis[i];
     }
-    return 0;
+
+	//There can be data dependence
+    for (int i = 0; i < DIMENSIONS; i++){
+    	*maxR = (encoded[i] > *maxR) ? encoded[i] : *maxR;
+    	*minR = (encoded[i] < *minR) ? encoded[i] : *minR;
+    }
 }
+
 
 /* Adds an encoded vector to the ClassList */
-void train(FeatType l[CLASSES][DIMENSIONS], int numClass, FeatType encoded[DIMENSIONS], FeatType classMinMax[CLASSES][2]){
+//void train(
+//		//input
+//		int numClass,
+//		FeatType encoded[DIMENSIONS],
+//		FeatType minI,
+//		FeatType maxI,
+//		//output
+//		FeatType l[CLASSES][DIMENSIONS],
+//		FeatType classMinMax[CLASSES][2]){
+//
+//	FeatType min_local = minI;
+//	FeatType max_local = maxI;
+//
+//    for (int i = 0; i < DIMENSIONS; ++i) {
+//#pragma HLS pipeline
+//        l[numClass][i] += encoded[i];
+//    }
+//
+//    for (int i = 0; i < DIMENSIONS; ++i){
+//        max_local = (l[numClass][i] > max_local) ?
+//            l[numClass][i] : max_local;
+//
+//        min_local = (l[numClass][i] < min_local) ?
+//            l[numClass][i] : min_local;
+//    }
+//
+//    classMinMax[numClass][0] = min_local;
+//    classMinMax[numClass][1] = max_local;
+//}
+void train(
+		//input
+		int numClass,
+		FeatType encoded[DIMENSIONS],
+		//output
+		FeatType l[CLASSES][DIMENSIONS],
+		FeatType classMinMax[CLASSES][2]){
+
+
     for (int i = 0; i < DIMENSIONS; ++i) {
-#pragma HLS pipeline
+		#pragma HLS pipeline
         l[numClass][i] += encoded[i];
 
-        classMinMax[numClass][1] =
-            (l[numClass][i] > classMinMax[numClass][1]) ? 
-            l[numClass][i] : classMinMax[numClass][1];
+        classMinMax[numClass][1] = (l[numClass][i] > classMinMax[numClass][1]) ?
+                    l[numClass][i] : classMinMax[numClass][1];
 
-        classMinMax[numClass][0] =
-            (l[numClass][i] < classMinMax[numClass][0]) ? 
-            l[numClass][i] : classMinMax[numClass][0];
+        classMinMax[numClass][0] = (l[numClass][i] < classMinMax[numClass][0]) ?
+			l[numClass][i] : classMinMax[numClass][0];
     }
 }
 
+
 /* Map values of ENvectors data in ClassList to [-1,1] */
-void normalize(FeatType l[CLASSES][DIMENSIONS], int numClass, float* min, float* max){
+void normalize(FeatType l[CLASSES][DIMENSIONS], int numClass, FeatType* min, FeatType* max){
     mapper(l[numClass], min, max);
 }
 
 /* Helper for normalize that actually does the mapping */
-void mapper(FeatType en[DIMENSIONS], float* min, float* max){
+void mapper(FeatType en[DIMENSIONS], FeatType* min, FeatType* max){
     for (int i = 0; i < DIMENSIONS; ++i) {
-        en[i] = -1 + (2 / (max - min)) * (en[i] - min);
+        en[i] = -1 + (2 / (*max - *min)) * (en[i] - *min);
     }
     *min = -1;
     *max = 1;
@@ -118,11 +187,11 @@ float cosinesim(FeatType a[], FeatType b[]) {
   FeatType magB = 0.0;
   FeatType dot = 0.0;
   for (int i = 0; i < DIMENSIONS; ++i) {
-    magA += pow(a[i], 2); // FIXME: Overflow??
-    magB += pow(b[i], 2); // FIXME: Overflow??
+    magA += powf(a[i], 2); // FIXME: Overflow??
+    magB += powf(b[i], 2); // FIXME: Overflow??
 
     dot += a[i] * b[i];
   }
 
-  return acos(dot / (sqrt(magA) * sqrt(magB)));
+  return acosf(dot / (sqrtf(magA) * sqrtf(magB)));
 }
