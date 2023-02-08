@@ -20,13 +20,6 @@ void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS*FEATURES],
             FeatType encoded[DIMENSIONS], FeatType* min, FeatType* max);
 
 /* Does the matrix multiplication for the encode step */
-//void matrixmult(//input
-//				FeatType sample[FEATURES],
-//				FeatType basis[FEATURES*DIMENSIONS],
-//				FeatType minI, FeatType maxI,
-//				//output
-//                FeatType encoded[DIMENSIONS],
-//				FeatType* minR, FeatType* maxR);
 void matrixmult(//input
 				FeatType sample[FEATURES],
 				FeatType basis[FEATURES*DIMENSIONS],
@@ -35,15 +28,6 @@ void matrixmult(//input
 				FeatType* minR, FeatType* maxR);
 
 /* Adds an encoded vector to the ClassList */
-//void train(
-//		//input
-//		int numClass,
-//		FeatType encoded[DIMENSIONS],
-//		FeatType minI,
-//		FeatType maxI,
-//		//output
-//		FeatType l[CLASSES][DIMENSIONS],
-//		FeatType classMinMax[CLASSES][2]);
 void train(
 		//input
 		int numClass,

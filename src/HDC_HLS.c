@@ -48,34 +48,6 @@ void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS*FEATURES],
  * min max are the input and read only
  * minR.and maxR are the output and write only
  */
-//void matrixmult(//input
-//				FeatType sample[FEATURES],
-//				FeatType basis[FEATURES*DIMENSIONS],
-//				FeatType minI, FeatType maxI,
-//				//output
-//                FeatType encoded[DIMENSIONS],
-//				FeatType* minR, FeatType* maxR){
-//    for (int i = 0; i < DIMENSIONS; i++) {
-//		#pragma HLS pipeline
-//        encoded[i] = 0;
-//    }
-//    for (int i =0; i < FEATURES*DIMENSIONS; i++){
-//		#pragma HLS pipeline
-//		encoded[i / FEATURES] += sample[i % FEATURES] * basis[i];
-//    }
-//
-//    FeatType min_local = minI;
-//    FeatType max_local = maxI;
-//	//There can be data dependence
-//    for (int i = 0; i < DIMENSIONS; i++){
-//    	max_local = (encoded[i] > max_local) ? encoded[i] : max_local;
-//    	min_local = (encoded[i] < min_local) ? encoded[i] : min_local;
-//    }
-//	*maxR = max_local;
-//	*minR = min_local;
-//
-//}
-
 void matrixmult(//input
 				FeatType sample[FEATURES],
 				FeatType basis[FEATURES*DIMENSIONS],
@@ -100,35 +72,6 @@ void matrixmult(//input
 
 
 /* Adds an encoded vector to the ClassList */
-//void train(
-//		//input
-//		int numClass,
-//		FeatType encoded[DIMENSIONS],
-//		FeatType minI,
-//		FeatType maxI,
-//		//output
-//		FeatType l[CLASSES][DIMENSIONS],
-//		FeatType classMinMax[CLASSES][2]){
-//
-//	FeatType min_local = minI;
-//	FeatType max_local = maxI;
-//
-//    for (int i = 0; i < DIMENSIONS; ++i) {
-//#pragma HLS pipeline
-//        l[numClass][i] += encoded[i];
-//    }
-//
-//    for (int i = 0; i < DIMENSIONS; ++i){
-//        max_local = (l[numClass][i] > max_local) ?
-//            l[numClass][i] : max_local;
-//
-//        min_local = (l[numClass][i] < min_local) ?
-//            l[numClass][i] : min_local;
-//    }
-//
-//    classMinMax[numClass][0] = min_local;
-//    classMinMax[numClass][1] = max_local;
-//}
 void train(
 		//input
 		int numClass,
