@@ -55,7 +55,9 @@ void matrixmult(FeatType sample[FEATURES],
                 FeatType *maxR) {
   int start = PARTITIONS * cycle;
   int end = start + PARTITIONS;
+  #pragma HLS ARRAY_PARTITION variable=basis type=block factor=PARTITIONS 
   for (int i = start; i < end; ++i) {
+    #pragma HLS unroll
     for (int j = 0; j < FEATURES; ++j) {
       encoded[i] += sample[i] * basis[FEATURES * (i - start) + j];
     }
