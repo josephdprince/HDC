@@ -13,28 +13,35 @@ void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS * FEATURES],
   #pragma HLS INTERFACE s_axilite register port = return bundle = ctrl
 
   FeatType sample_local[FEATURES];
-  FeatType basis_local[DIMENSIONS * FEATURES];
+  FeatType basis_local[FEATURES * PARTITIONS];
   FeatType encoded_local[DIMENSIONS];
 
   FeatType min = DIMENSIONS;
   FeatType max = DIMENSIONS * -1;
 
-  // Partion the basis_local into blocks of size DIMENSIONS since the array can
-  // be too big to load in at once
-  #pragma HLS ARRAY_PARTITION variable = basis_local type = block factor =       \
-    DIMENSIONS
+  // Populate encoded_local with 0
+  for (int i = 0; i < DIMENSIONS; ++i) {
+    #pragma HLS pipeline
+    encoded_local[i] = 0;
+  }
 
+  // Copy data into sample_local
   for (int i = 0; i < FEATURES; i++) {
     #pragma HLS pipeline
     sample_local[i] = sample[i];
   }
 
-  for (int i = 0; i < FEATURES * DIMENSIONS; i++) {
-    #pragma HLS pipeline
-    basis_local[i] = basis[i];
+  // Perform matrix multiplication in parts due to limited BRAM on Pynq Z2 board
+  int cycle = DIMENSIONS / PARTITIONS;
+  for (int i = 0; i < cycle; ++i) {
+    for (int j = 0; j < FEATURES * PARTITIONS; j++) {
+      #pragma HLS pipeline
+      basis_local[j] = basis[i * FEATURES * PARTITIONS + j];
+    }
+
+    matrixmult(sample_local, basis_local, encoded_local, cycle, &min, &max);
   }
 
-  matrixmult(sample_local, basis_local, encoded_local, &min, &max);
   mapper(encoded_local, &min, &max);
   for (int i = 0; i < DIMENSIONS; i++) {
     #pragma HLS pipeline
@@ -43,18 +50,18 @@ void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS * FEATURES],
 }
 
 void matrixmult(FeatType sample[FEATURES],
-                FeatType basis[FEATURES * DIMENSIONS],
-                FeatType encoded[DIMENSIONS], FeatType *minR, FeatType *maxR) {
-  for (int i = 0; i < DIMENSIONS; i++) {
-    #pragma HLS pipeline
-    encoded[i] = 0;
-  }
-  for (int i = 0; i < FEATURES * DIMENSIONS; i++) {
-    #pragma HLS pipeline II = 2
-    encoded[i / FEATURES] += sample[i % FEATURES] * basis[i];
+                FeatType basis[FEATURES * PARTITIONS],
+                FeatType encoded[DIMENSIONS], int cycle, FeatType *minR,
+                FeatType *maxR) {
+  int start = PARTITIONS * cycle;
+  int end = start + PARTITIONS;
+  for (int i = start; i < end; ++i) {
+    for (int j = 0; j < FEATURES; ++j) {
+      encoded[i] += sample[i] * basis[FEATURES * (i - start) + j];
+    }
   }
 
-  for (int i = 0; i < DIMENSIONS; i++) {
+  for (int i = start; i < end; i++) {
     #pragma HLS pipeline
     *maxR = (encoded[i] > *maxR) ? encoded[i] : *maxR;
     *minR = (encoded[i] < *minR) ? encoded[i] : *minR;

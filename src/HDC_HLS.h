@@ -1,8 +1,9 @@
 #pragma once
 
 /* Global variables */
-#define DIMENSIONS 1000
-#define FEATURES 28
+#define DIMENSIONS 1024
+#define FEATURES 784
+#define PARTITIONS 128
 #define CLASSES 10
 
 #define FALSE 0
@@ -23,7 +24,8 @@ void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS * FEATURES],
  * Output encoded, minRm and maxR */
 void matrixmult(FeatType sample[FEATURES],
                 FeatType basis[FEATURES * DIMENSIONS],
-                FeatType encoded[DIMENSIONS], FeatType *minR, FeatType *maxR);
+                FeatType encoded[DIMENSIONS], int cycle, FeatType *minR,
+                FeatType *maxR);
 
 /* Adds an encoded vector to the ClassList. Input numClass and encoded. Output l
  * and classMinMax */
