@@ -59,7 +59,7 @@ void matrixmult(FeatType sample[FEATURES],
   for (int i = start; i < end; ++i) {
     #pragma HLS unroll
     for (int j = 0; j < FEATURES; ++j) {
-      encoded[i] += sample[i] * basis[FEATURES * (i - start) + j];
+      encoded[i] += sample[j] * basis[FEATURES * (i - start) + j];
     }
   }
 
