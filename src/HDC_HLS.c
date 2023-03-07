@@ -39,7 +39,7 @@ void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS * FEATURES],
       basis_local[j] = basis[i * FEATURES * PARTITIONS + j];
     }
 
-    matrixmult(sample_local, basis_local, encoded_local, cycle, &min, &max);
+    matrixmult(sample_local, basis_local, encoded_local, i, &min, &max);
   }
 
   mapper(encoded_local, &min, &max);
