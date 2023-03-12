@@ -112,12 +112,13 @@ void mapper(FeatType en[DIMENSIONS], FeatType *min, FeatType *max) {
   *max = 1;
 }
 
-int similarity(FeatType encoded[DIMENSIONS], FeatType l[CLASSES][DIMENSIONS]) {
+int similarity(FeatType encoded[DIMENSIONS], FeatType classes[CLASSES*DIMENSIONS]){
   int closestClass = -1;
   float min = 10; // Just needs to be a value larger than pi
   float curr = 0.0;
   for (int i = 0; i < CLASSES; i++) {
-    curr = cosinesim(l[i], encoded);
+    #pragma HLS pipeline
+    curr = cosinesim(classes, encoded, i);
     if (curr < min) {
       min = curr;
       closestClass = i;
@@ -126,16 +127,18 @@ int similarity(FeatType encoded[DIMENSIONS], FeatType l[CLASSES][DIMENSIONS]) {
   return closestClass;
 }
 
-float cosinesim(FeatType a[], FeatType b[]) {
+float cosinesim(FeatType classes[CLASSES*DIMENSIONS], FeatType b[], int curr_class) {
   // Return arccos((a*b) / (|a|*|b|))
   FeatType magA = 0.0;
   FeatType magB = 0.0;
   FeatType dot = 0.0;
+  int start = curr_class * DIMENSIONS;
   for (int i = 0; i < DIMENSIONS; ++i) {
-    magA += powf(a[i], 2); // FIXME: Overflow??
-    magB += powf(b[i], 2); // FIXME: Overflow??
+    #pragma HLS pipeline
+    magA += powf(classes[start + i], 2);
+    magB += powf(b[i], 2); 
 
-    dot += a[i] * b[i];
+    dot += classes[i] * b[i];
   }
 
   return acosf(dot / (sqrtf(magA) * sqrtf(magB)));

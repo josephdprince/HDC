@@ -41,8 +41,8 @@ void mapper(FeatType en[DIMENSIONS], FeatType *min, FeatType *max);
 
 /* Compares an encoded sample to the closest class in ClassList using a
  * cosine similarity. Returns a numerical value of the classification. */
-int similarity(FeatType encoded[DIMENSIONS], FeatType l[CLASSES][DIMENSIONS]);
+int similarity(FeatType encoded[DIMENSIONS], FeatType classes[CLASSES*DIMENSIONS]);
 
 /* Performs a cosine similarity between vector a and b. Returns the angle
  * between both vectors in radians. */
-float cosinesim(FeatType a[], FeatType b[]);
+float cosinesim(FeatType classes[CLASSES*DIMENSIONS], FeatType b[], int curr_class);
