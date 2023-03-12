@@ -1,4 +1,3 @@
-
 open_project -reset hdc_hls
 set_top encode
 add_files src/HDC_HLS.cc -cflags "-std=c++0x"
