@@ -6,7 +6,7 @@ void wrapper(FeatType samples[(NUMTRAIN + NUMTEST) * FEATURES],
              int results[NUMTEST]) {
 
   #pragma HLS INTERFACE m_axi port=samples offset=slave bundle=samples
-  #pragma HLS INTERFACE s_axilite register port=sample bundle=ctrl
+  #pragma HLS INTERFACE s_axilite register port=samples bundle=ctrl
   #pragma HLS INTERFACE m_axi port=basis offset=slave bundle=basis
   #pragma HLS INTERFACE s_axilite register port=basis bundle=ctrl
   #pragma HLS INTERFACE m_axi port=ids offset=slave bundle=ids
@@ -100,7 +100,7 @@ void matrixmult(FeatType sample[FEATURES],
   // Note: In this function, basis is a partition of the original basis
   int start = PARTITIONS * cycle;
   int end = start + PARTITIONS;
-  #pragma HLS ARRAY_PARTITION variable = basis type = block factor = PARTITIONS
+  #pragma HLS ARRAY_PARTITION variable = basis type = block factor = 128
   for (int i = start; i < end; ++i) {
     #pragma HLS unroll
     for (int j = 0; j < FEATURES; ++j) {

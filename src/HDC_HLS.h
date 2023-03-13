@@ -20,8 +20,9 @@ typedef float FeatType;
 /*========== Function to Synthesize ==========*/
 
 /* Wrapper function that performs the entire classification algorithm. */
-void wrapper(FeatType samples[(NUMTRAIN + NUMTEST) + FEATURES],
-             FeatType basis[DIMENSIONS * FEATURES], int results[NUMTEST]);
+void wrapper(FeatType samples[(NUMTRAIN + NUMTEST) * FEATURES],
+        FeatType basis[DIMENSIONS * FEATURES], int ids[NUMTRAIN + NUMTEST],
+        int results[NUMTEST]);
 
 /* Encodes a sample vector by multiplying it with the basis matrix */
 void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS * FEATURES],
