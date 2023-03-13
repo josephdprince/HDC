@@ -69,10 +69,6 @@ void encode(FeatType sample_local[FEATURES],
   }
 
   mapper(encoded_local, &min, &max);
-  for (int i = 0; i < DIMENSIONS; i++) {
-    #pragma HLS pipeline
-    encoded[i] = encoded_local[i];
-  }
 }
 
 void matrixmult(FeatType sample[FEATURES],
