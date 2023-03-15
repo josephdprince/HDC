@@ -1,9 +1,9 @@
 #include "HDC_HLS.h"
 #include <math.h>
 
-void wrapper(FeatType samples[(NUMTRAIN + NUMTEST) * FEATURES],
+void wrapper(FeatType samples[NUMTEST * FEATURES],
              FeatType basis[DIMENSIONS * FEATURES],
-             FeatType results[(NUMTRAIN + NUMTEST) * DIMENSIONS]) {
+             FeatType results[NUMTEST * DIMENSIONS]) {
 
   #pragma HLS INTERFACE m_axi port=samples offset=slave bundle=samples
   #pragma HLS INTERFACE s_axilite register port=samples bundle=ctrl
@@ -17,7 +17,7 @@ void wrapper(FeatType samples[(NUMTRAIN + NUMTEST) * FEATURES],
   FeatType encoded_local[DIMENSIONS];
 
   // Encode each sample
-  for (int i = 0; i < NUMTRAIN + NUMTEST; ++i) {
+  for (int i = 0; i < NUMTEST; ++i) {
     int start = FEATURES * i;
 
     // Populate sample_local

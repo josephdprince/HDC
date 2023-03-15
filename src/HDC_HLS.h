@@ -19,10 +19,11 @@ typedef float FeatType;
 
 /*========== Function to Synthesize ==========*/
 
-/* Wrapper function that calls encode on each sample */
-void wrapper(FeatType samples[(NUMTRAIN + NUMTEST) * FEATURES],
+/* Wrapper function that calls encode on each sample. Note: samples and results
+ * will not incluse NUMTRAIN data due to DRAM limitations on Pynq Z2 board */
+void wrapper(FeatType samples[NUMTEST * FEATURES],
              FeatType basis[DIMENSIONS * FEATURES],
-             FeatType results[(NUMTRAIN + NUMTEST) * DIMENSIONS]);
+             FeatType results[NUMTEST * DIMENSIONS]);
 
 /* Encodes a sample vector by multiplying it with the basis matrix */
 void encode(FeatType sample_local[FEATURES],
