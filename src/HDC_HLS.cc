@@ -18,12 +18,13 @@ void wrapper(FeatType samples[NUMTEST * FEATURES],
 
   // Encode each sample
   for (int i = 0; i < NUMTEST; ++i) {
-    int start = FEATURES * i;
-
+    int sStart = FEATURES * i;
+    int rStart = DIMENSIONS * i;
+    
     // Populate sample_local
     for (int j = 0; j < FEATURES; ++j) {
       #pragma HLS pipeline
-      sample_local[j] = samples[start + j];
+      sample_local[j] = samples[sStart + j];
     }
 
     // Zero out encoded_local
@@ -38,7 +39,7 @@ void wrapper(FeatType samples[NUMTEST * FEATURES],
     // Store result
     for (int j = 0; j < DIMENSIONS; ++j) {
       #pragma HLS pipeline
-      results[start + j] = encoded_local[j];
+      results[rStart + j] = encoded_local[j];
     }
   }
 }
