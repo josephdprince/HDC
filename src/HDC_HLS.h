@@ -6,6 +6,9 @@
 #define PARTITIONS 128
 #define CLASSES 10
 
+#define NUMTRAIN 60000
+#define NUMTEST 10000
+
 #define FALSE 0
 #define TRUE 1
 
@@ -16,9 +19,16 @@ typedef float FeatType;
 
 /*========== Function to Synthesize ==========*/
 
+/* Wrapper function that calls encode on each sample. Note: samples and results
+ * will not incluse NUMTRAIN data due to DRAM limitations on Pynq Z2 board */
+void wrapper(FeatType samples[NUMTEST * FEATURES],
+             FeatType basis[DIMENSIONS * FEATURES],
+             FeatType results[NUMTEST * DIMENSIONS]);
+
 /* Encodes a sample vector by multiplying it with the basis matrix */
-void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS * FEATURES],
-            FeatType encoded[DIMENSIONS]);
+void encode(FeatType sample_local[FEATURES],
+            FeatType basis[DIMENSIONS * FEATURES],
+            FeatType encoded_local[DIMENSIONS]);
 
 /* Does the matrix multiplication for the encode step. Input sample and basis.
  * Output encoded, minRm and maxR */
