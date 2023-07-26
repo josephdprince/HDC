@@ -1,74 +1,56 @@
 #include "HDC_HLS.h"
 #include <math.h>
 
-void wrapper(FeatType samples[(NUMTRAIN + NUMTEST) * FEATURES],
-             FeatType basis[DIMENSIONS * FEATURES], int ids[NUMTRAIN + NUMTEST],
-             int results[NUMTEST]) {
+void wrapper(FeatType samples[NUMTEST * FEATURES],
+             FeatType basis[DIMENSIONS * FEATURES],
+             FeatType results[NUMTEST * DIMENSIONS]) {
 
   #pragma HLS INTERFACE m_axi port=samples offset=slave bundle=samples
   #pragma HLS INTERFACE s_axilite register port=samples bundle=ctrl
   #pragma HLS INTERFACE m_axi port=basis offset=slave bundle=basis
   #pragma HLS INTERFACE s_axilite register port=basis bundle=ctrl
-  #pragma HLS INTERFACE m_axi port=ids offset=slave bundle=ids
-  #pragma HLS INTERFACE s_axilite register port=ids bundle=ctrl
   #pragma HLS INTERFACE m_axi port=results offset=slave bundle=results
   #pragma HLS INTERFACE s_axilite register port=results bundle=ctrl
   #pragma HLS INTERFACE s_axilite register port=return bundle=ctrl
 
   FeatType sample_local[FEATURES];
   FeatType encoded_local[DIMENSIONS];
-  FeatType classes[CLASSES * DIMENSIONS];
 
-  // Handle train data
-  for (int i = 0; i < NUMTRAIN; ++i) {
-    #pragma HLS pipeline
-    // Populate local sample
+  // Encode each sample
+  for (int i = 0; i < NUMTEST; ++i) {
+    int sStart = FEATURES * i;
+    int rStart = DIMENSIONS * i;
+    
+    // Populate sample_local
     for (int j = 0; j < FEATURES; ++j) {
-      #pragma HLS unroll
-      sample_local[j] = samples[FEATURES * i + j];
+      #pragma HLS pipeline
+      sample_local[j] = samples[sStart + j];
     }
 
-    // Encode the local sample
-    encode(sample_local, basis, encoded_local);
-
-    // Train data into classes
-    train(ids[i], encoded_local, classes);
-  }
-
-  // Now normalize all the classes
-  for (int i = 0; i < CLASSES; ++i) {
-    normalize(classes, i);
-  }
-
-  // Handle test data
-  for (int i = NUMTRAIN; i < NUMTRAIN + NUMTEST; ++i) {
-    #pragma HLS pipeline
-    // Populate local sample
-    for (int j = 0; j < FEATURES; ++j) {
-      #pragma HLS unroll
-      sample_local[j] = samples[FEATURES * i + j];
+    // Zero out encoded_local
+    for (int j = 0; j < DIMENSIONS; ++j) {
+      #pragma HLS pipeline
+      encoded_local[j] = 0;
     }
 
-    // Encode the local sample
+    // Now encode the sample
     encode(sample_local, basis, encoded_local);
 
-    // Get result
-    results[i - NUMTRAIN] = similarity(encoded_local, classes);
+    // Store result
+    for (int j = 0; j < DIMENSIONS; ++j) {
+      #pragma HLS pipeline
+      results[rStart + j] = encoded_local[j];
+    }
   }
 }
 
-void encode(FeatType sample[FEATURES], FeatType basis[DIMENSIONS * FEATURES],
+void encode(FeatType sample_local[FEATURES],
+            FeatType basis[DIMENSIONS * FEATURES],
             FeatType encoded_local[DIMENSIONS]) {
   FeatType basis_local[FEATURES * PARTITIONS];
 
   FeatType min = DIMENSIONS;
   FeatType max = DIMENSIONS * -1;
-
-  // Populate encoded_local with 0
-  for (int i = 0; i < DIMENSIONS; ++i) {
-    #pragma HLS pipeline
-    encoded_local[i] = 0;
-  }
 
   // Perform matrix multiplication in parts due to limited BRAM on Pynq Z2 board
   // Size of the basis is FEATURES * DIMENSIONS
@@ -117,36 +99,6 @@ void matrixmult(FeatType sample[FEATURES],
   }
 }
 
-void train(int numClass, FeatType encoded[DIMENSIONS],
-           FeatType classes[CLASSES * DIMENSIONS]) {
-
-  int start = numClass * DIMENSIONS;
-  for (int i = 0; i < DIMENSIONS; ++i) {
-    #pragma HLS pipeline
-    classes[start + i] += encoded[i];
-  }
-}
-
-void normalize(FeatType classes[CLASSES * DIMENSIONS], int numClass) {
-  FeatType max = DIMENSIONS * -1;
-  FeatType min = DIMENSIONS;
-
-  int start = numClass * DIMENSIONS;
-
-  // Get max and min
-  for (int i = 0; i < DIMENSIONS; ++i) {
-    #pragma HLS pipeline
-    max = classes[start + i] > max ? classes[start + i] : max;
-    min = classes[start + i] < min ? classes[start + i] : min;
-  }
-
-  // Linear mapping
-  for (int i = 0; i < DIMENSIONS; ++i) {
-    #pragma HLS pipeline
-    classes[start + i] = -1 + (2 / (max - min)) * (classes[start + i] - min);
-  }
-}
-
 void mapper(FeatType en[DIMENSIONS], FeatType *min, FeatType *max) {
   for (int i = 0; i < DIMENSIONS; ++i) {
     #pragma HLS pipeline
@@ -154,38 +106,4 @@ void mapper(FeatType en[DIMENSIONS], FeatType *min, FeatType *max) {
   }
   *min = -1;
   *max = 1;
-}
-
-int similarity(FeatType encoded[DIMENSIONS],
-               FeatType classes[CLASSES * DIMENSIONS]) {
-  int closestClass = -1;
-  float min = 10; // Just needs to be a value larger than pi
-  float curr = 0.0;
-  for (int i = 0; i < CLASSES; i++) {
-    #pragma HLS pipeline
-    curr = cosinesim(classes, encoded, i);
-    if (curr < min) {
-      min = curr;
-      closestClass = i;
-    }
-  }
-  return closestClass;
-}
-
-float cosinesim(FeatType classes[CLASSES * DIMENSIONS], FeatType b[],
-                int curr_class) {
-  // Return arccos((a*b) / (|a|*|b|))
-  FeatType magA = 0.0;
-  FeatType magB = 0.0;
-  FeatType dot = 0.0;
-  int start = curr_class * DIMENSIONS;
-  for (int i = 0; i < DIMENSIONS; ++i) {
-    #pragma HLS pipeline
-    magA += powf(classes[start + i], 2);
-    magB += powf(b[i], 2);
-
-    dot += classes[i] * b[i];
-  }
-
-  return acosf(dot / (sqrtf(magA) * sqrtf(magB)));
 }
