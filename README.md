@@ -18,7 +18,7 @@ To do this, we wrote a classification algorithm, in C code, that heavily uses HD
 
 ![PYNQ-Z2 board](https://www.xilinx.com/content/xilinx/en/support/university/xup-boards/XUPPYNQ-Z2/_jcr_content/root/parsys/xilinxcolumns_f62b/childParsys-0/xilinximage.img.jpg/1650540100168.jpg)
 
-Then, we write the code to run the algorithm on a Jupyter Notebook on the Pynq Z2 board. The components of this algorithm that involve HDC are run on the FPGA. All these steps have been completed and will be discussed more in the paper. 
+Then, we write the code to run the algorithm on a Jupyter Notebook on the Pynq Z2 board. The components of this algorithm that involve HDC are run on the FPGA. All these steps have been completed and will be discussed more in [the paper](Documentation\Final_Report.docx). 
  
 This project used data from the [MNIST dataset](https://en.wikipedia.org/wiki/MNIST_database) to test the speed and accuracy of the algorithm, and we compared the time it took to test with and without the FPGA to see if this project actually sped up the calculation.
 
