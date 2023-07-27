@@ -66,7 +66,7 @@ void encode(FeatType sample_local[FEATURES],
       basis_local[j] = basis[i * FEATURES * PARTITIONS + j];
     }
 
-    matrixmult(sample_local, basis_local, encoded_local, i, &min, &max);
+    matrixmult(sample, basis_local, encoded_local, i, &min, &max);
   }
 
   mapper(encoded_local, &min, &max);
@@ -82,7 +82,7 @@ void matrixmult(FeatType sample[FEATURES],
   // Note: In this function, basis is a partition of the original basis
   int start = PARTITIONS * cycle;
   int end = start + PARTITIONS;
-  #pragma HLS ARRAY_PARTITION variable=basis type=block factor=PARTITIONS
+  #pragma HLS ARRAY_PARTITION variable = basis type = block factor = 128
   for (int i = start; i < end; ++i) {
     #pragma HLS unroll
     for (int j = 0; j < FEATURES; ++j) {
@@ -101,6 +101,7 @@ void matrixmult(FeatType sample[FEATURES],
 
 void mapper(FeatType en[DIMENSIONS], FeatType *min, FeatType *max) {
   for (int i = 0; i < DIMENSIONS; ++i) {
+    #pragma HLS pipeline
     en[i] = -1 + (2 / (*max - *min)) * (en[i] - *min);
   }
   *min = -1;
